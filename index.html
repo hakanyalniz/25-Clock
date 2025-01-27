@@ -5,17 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>25 + 5 Clock</title>
     <link rel="stylesheet" type="text/css" href="src/style.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <div class="p-6 bg-blue-500 text-white">
-      <h1 class="text-3xl font-bold">Hello, Tailwind + jQuery!</h1>
-      <button
-        id="alertButton"
-        class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Click Me
-      </button>
+    <div class="flex items-center justify-center h-screen">
+      <div class="clock-container w-fit">
+        <div id="break-control" class="inline-block mr-10">
+          <div class="text-center mb-2" id="break-label">Break Length</div>
+          <button
+            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none cursor-pointer"
+            id="break-increment"
+          >
+            <i class="fas fa-arrow-up"></i>
+          </button>
+
+          <div class="inline-block px-2" id="break-length">5</div>
+
+          <button
+            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none cursor-pointer"
+            id="break-decrement"
+          >
+            <i class="fas fa-arrow-down"></i>
+          </button>
+        </div>
+
+        <div id="session-control" class="inline-block">
+          <div class="text-center mb-2" id="session-label">Session Length</div>
+          <button
+            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none cursor-pointer"
+            id="session-increment"
+          >
+            <i class="fas fa-arrow-up"></i>
+          </button>
+
+          <div class="inline-block px-2" id="session-length">25</div>
+
+          <button
+            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none cursor-pointer"
+            id="session-decrement"
+          >
+            <i class="fas fa-arrow-down"></i>
+          </button>
+        </div>
+
+        <div id="time-counter-container">
+          <div id="timer-label">Session</div>
+          <div id="time-left">25:00</div>
+        </div>
+
+        <div id="controller-container">
+          <button class="cursor-pointer" id="start_stop">
+            <i class="fas fa-play"></i><i class="fas fa-stop"></i>
+          </button>
+          <button class="cursor-pointer" id="reset">
+            <i class="fas fa-redo"></i>
+          </button>
+        </div>
+      </div>
     </div>
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
