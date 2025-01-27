@@ -5,85 +5,153 @@ let minutes;
 let seconds;
 let countdownInterval;
 let runningState = false;
+let breakTime = true;
 
-$(function () {
-  // Start and stop button
-  $("#start_stop").on("click", function () {
-    // This will allow us to turn on or off the clock
-    runningState = !runningState; // Toggle between true and false
+function startCountdown() {
+  time = $("#time-left").text().split(":"); // ["25", "30"]
+  minutes = parseInt(time[0], 10); // 25 minutes
+  seconds = parseInt(time[1], 10); // 30 seconds
 
-    // Get the number from the div and convert it to minutes and seconds
-    // So, #time-left might contain 25:30
+  countdownInterval = setInterval(function () {
+    if (seconds > 0) {
+      seconds--;
+    } else if (minutes > 0) {
+      minutes--;
+      seconds = 59;
+    }
+
+    // Update the div with the new time
+    $("#time-left").text(
+      `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    );
+
+    // When time reaches 00:00, switch between session and break
+    if (minutes === 0 && seconds === 0) {
+      clearInterval(countdownInterval);
+
+      // Play the audio when time is up
+      $("#beep")[0].play();
+
+      if (breakTime) {
+        // If it was a break, switch to session time
+        breakTime = false;
+        $("#timer-label").text("Break");
+
+        $("#time-left").text(
+          `${String($("#break-length").text()).padStart(2, "0")}:00`
+        );
+        startCountdown(); // Start the session timer again
+      } else {
+        // If it was a session, switch to break time
+        breakTime = true;
+        $("#timer-label").text("Session");
+
+        $("#time-left").text(
+          `${String($("#session-length").text()).padStart(2, "0")}:00`
+        );
+        startCountdown(); // Start the break timer
+      }
+    }
+  }, 1); // 1000ms = 1 second
+}
+
+// Toggle start/pause on button click
+$("#start_stop").on("click", function () {
+  runningState = !runningState; // Toggle between true and false
+
+  if (runningState) {
+    // Start countdown when the timer is not running
+    startCountdown();
+  } else {
+    // Pause countdown by clearing the interval
+    clearInterval(countdownInterval);
+  }
+});
+
+// Reset button, set all values to default and stop countdown
+$("#reset").on("click", function () {
+  runningState = false;
+  $("#break-length").text("5");
+  $("#session-length").text("25");
+  $("#time-left").text("25:00");
+  clearInterval(countdownInterval);
+
+  $("#beep")[0].pause(); // Pauses the audio
+  $("#beep")[0].currentTime = 0; // Resets the audio to the beginning
+});
+
+// Increment and decrement buttons
+
+// Break buttons
+$("#break-increment").on("click", function () {
+  let breakLengthNumber = $("#break-length").text();
+
+  // If running state is true, don't execute the code
+  // The greater than number makes sure that the numbers can't be set below 0
+  // and greater than 60
+  if (!runningState && breakLengthNumber > 1 && breakLengthNumber < 60) {
+    breakLengthNumber++;
+    $("#break-length").text(breakLengthNumber);
+  } else if (breakLengthNumber == 1) {
+    breakLengthNumber++;
+    $("#break-length").text(breakLengthNumber);
+  }
+});
+$("#break-decrement").on("click", function () {
+  let breakLengthNumber = $("#break-length").text();
+
+  // If running state is true, don't execute the code
+  if (!runningState && breakLengthNumber > 1 && breakLengthNumber < 60) {
+    breakLengthNumber--;
+    $("#break-length").text(breakLengthNumber);
+  }
+});
+
+// Session buttons
+$("#session-increment").on("click", function () {
+  let sessionLengthNumber = $("#session-length").text();
+
+  if (!runningState && sessionLengthNumber > 1 && sessionLengthNumber < 60) {
+    clearInterval(countdownInterval);
+
+    sessionLengthNumber++;
+    $("#session-length").text(sessionLengthNumber);
+
     time = $("#time-left").text().split(":"); // ["25", "30"]
     minutes = parseInt(time[0], 10); // 25 minutes
     seconds = parseInt(time[1], 10); // 30 seconds
 
-    // If the number is a valid number and greater than 0
-    if (
-      runningState &&
-      !isNaN(minutes) &&
-      !isNaN(seconds) &&
-      minutes >= 0 &&
-      seconds >= 0
-    ) {
-      // Create a countdown using setInterval, it is set up with variable so we can stop it later on
-      countdownInterval = setInterval(function () {
-        // Decrease the seconds by 1
-        if (seconds > 0) {
-          seconds--;
-        } else if (minutes > 0) {
-          // If seconds reach 0 and minutes > 0, decrease minutes by 1 and reset seconds to 59
-          minutes--;
-          seconds = 59;
-        }
-
-        // Update the div with the new time
-        $("#time-left").text(
-          `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
-            2,
-            "0"
-          )}`
-        );
-
-        // When time is up, stop the interval
-        if (minutes === 0 && seconds === 0) {
-          clearInterval(countdownInterval);
-          $("#countdown").text("Time's up!");
-        }
-      }, 1000); // 1000ms = 1 second
-    } else {
-      // If runningState is false (pause), clear the interval
-      clearInterval(countdownInterval);
-    }
-  });
-
-  // Reset button, set all values to default and stop countdown
-  $("#reset").on("click", function () {
-    $("#break-length").text("5");
-    $("#session-length").text("25");
-    $("#time-left").text("25:00");
-    clearInterval(countdownInterval);
-  });
-
-  // Increment and decrement buttons
-
-  // Break buttons
-  $("#break-increment").on("click", function () {});
-  $("#break-increment").on("click", function () {});
-
-  // Session buttons
-  $("#session-increment").on("click", function () {
-    let sessionLengthNumber = $("#session-length").text();
-    sessionLengthNumber++;
-    $("#session-length").text(sessionLengthNumber);
-
-    minutes += 1;
+    // Increase minute by the session number, while also resetting seconds
+    minutes = sessionLengthNumber;
     seconds = 0;
-  });
 
-  $("#session-decrement").on("click", function () {
-    let sessionLengthNumber = $("#session-length").text();
+    // Update the div with the new time
+    $("#time-left").text(
+      `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    );
+  }
+});
+
+$("#session-decrement").on("click", function () {
+  let sessionLengthNumber = $("#session-length").text();
+
+  if (!runningState && sessionLengthNumber > 1 && sessionLengthNumber < 60) {
+    clearInterval(countdownInterval);
+
     sessionLengthNumber--;
     $("#session-length").text(sessionLengthNumber);
-  });
+
+    time = $("#time-left").text().split(":"); // ["25", "30"]
+    minutes = parseInt(time[0], 10); // 25 minutes
+    seconds = parseInt(time[1], 10); // 30 seconds
+
+    // Increase minute by the session number, while also resetting seconds
+    minutes = sessionLengthNumber;
+    seconds = 0;
+
+    // Update the div with the new time
+    $("#time-left").text(
+      `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    );
+  }
 });
