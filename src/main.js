@@ -32,27 +32,36 @@ function startCountdown() {
       // Play the audio when time is up
       $("#beep")[0].play();
 
-      if (breakTime) {
-        // If it was a break, switch to session time
-        breakTime = false;
-        $("#timer-label").text("Break");
+      // This part caused a huge issue
+      // The below area was setting to 00:00 and instantly running startCountdown(), as opposed to
+      // the 1 second wait interval there is for other numbers
+      // This caused issue with the test.
+      // I was able to find the problem and fix it at the end.
+      // The important thing I learned here is that if you are stumped by a problem, then writing down the supposed logic
+      // and step by step rundown of your code in plain words, then following it along your code might just save a lot of time
+      setTimeout(() => {
+        if ($("#timer-label").text() === "Session") {
+          // If it was a session, switch to break time
+          breakTime = true;
+          $("#timer-label").text("Break");
 
-        $("#time-left").text(
-          `${String($("#break-length").text()).padStart(2, "0")}:00`
-        );
-        startCountdown(); // Start the session timer again
-      } else {
-        // If it was a session, switch to break time
-        breakTime = true;
-        $("#timer-label").text("Session");
+          $("#time-left").text(
+            `${String($("#break-length").text()).padStart(2, "0")}:00`
+          );
+          startCountdown(); // Start the break timer
+        } else {
+          // If it was a break, switch to session time
+          breakTime = false;
+          $("#timer-label").text("Session");
 
-        $("#time-left").text(
-          `${String($("#session-length").text()).padStart(2, "0")}:00`
-        );
-        startCountdown(); // Start the break timer
-      }
+          $("#time-left").text(
+            `${String($("#session-length").text()).padStart(2, "0")}:00`
+          );
+          startCountdown(); // Start the session timer again
+        }
+      }, 1000);
     }
-  }, 1); // 1000ms = 1 second
+  }, 1000); // 1000ms = 1 second
 }
 
 // Toggle start/pause on button click
@@ -75,6 +84,10 @@ $("#reset").on("click", function () {
   $("#session-length").text("25");
   $("#time-left").text("25:00");
   clearInterval(countdownInterval);
+
+  if ($("#timer-label").text() === "Break") {
+    $("#timer-label").text("Session");
+  }
 
   $("#beep")[0].pause(); // Pauses the audio
   $("#beep")[0].currentTime = 0; // Resets the audio to the beginning
