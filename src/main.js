@@ -117,6 +117,9 @@ $("#break-decrement").on("click", function () {
   if (!runningState && breakLengthNumber > 1 && breakLengthNumber < 60) {
     breakLengthNumber--;
     $("#break-length").text(breakLengthNumber);
+  } else if (breakLengthNumber == 60) {
+    breakLengthNumber--;
+    $("#break-length").text(breakLengthNumber);
   }
 });
 
@@ -142,6 +145,9 @@ $("#session-increment").on("click", function () {
     $("#time-left").text(
       `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
     );
+  } else if (sessionLengthNumber == 1) {
+    sessionLengthNumber++;
+    $("#session-length").text(sessionLengthNumber);
   }
 });
 
@@ -166,5 +172,8 @@ $("#session-decrement").on("click", function () {
     $("#time-left").text(
       `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
     );
+  } else if (sessionLengthNumber == 60) {
+    sessionLengthNumber--;
+    $("#session-length").text(sessionLengthNumber);
   }
 });
